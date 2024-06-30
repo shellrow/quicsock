@@ -6,12 +6,14 @@
 [quicsock-github-url]: https://github.com/shellrow/quicsock
 
 # quicsock
-`quicsock` is a high-performance data transfer library, built on top of the `quinn` library.  
-It allows for secure and efficient data transfers, with support for both self-signed and specified TLS certificates.
+`quicsock` is a high-level and high-performance data transfer library, built on top of the `quinn` library.  
+It allows for secure and efficient data transfers, with support for both self-signed and specified TLS certificates.  
+
+Note: This project is currently under development and may breaking changes.
 
 ## Features
 - High-speed data transfer using QUIC protocol
-- Secure communication with TLS/SSL support
+- Secure communication: Connections are encrypted using TLS
 - Flexible certificate management: Use specified certificates or generate self-signed certificates
 - Support for large file transfer
 
