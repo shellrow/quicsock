@@ -21,7 +21,7 @@ Note: This project is currently under development and may breaking changes.
 Add `quicsock` to your dependencies  
 ```toml:Cargo.toml
 [dependencies]
-quicsock = "0.1"
+quicsock = "0.2"
 ```
 
 For more details, see [examples][examples-url] or [doc][doc-url].  
