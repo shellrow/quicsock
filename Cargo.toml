@@ -1,10 +1,10 @@
 [package]
 name = "quicsock"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["shellrow <shellrow@fortnium.com>"]
 description = "High-level and high-performance data transfer library"
-repository = "https://github.com/fortnium/quicsock"
+repository = "https://github.com/shellrow/quicsock"
 readme = "README.md"
 keywords = ["network"]
 categories = ["network-programming"]
