@@ -7,6 +7,11 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+/// The size of the default send buffer, in bytes.
+pub const DEFAULT_SEND_BUFFER_SIZE: usize = 16384;
+/// The size of the default receive buffer, in bytes.
+pub const DEFAULT_RECEIVE_BUFFER_SIZE: usize = 16384;
+
 /// A QUIC connection that can be used to send and receive data.
 /// 
 /// This struct wraps a `quinn::Connection` and provides a higher-level API for sending and receiving data.
@@ -17,6 +22,8 @@ pub struct QuicConnection {
     send_streams: Arc<Mutex<HashMap<u64, SendStream>>>,
     recv_streams: Arc<Mutex<HashMap<u64, RecvStream>>>,
     stream_id_counter: Arc<Mutex<u64>>,
+    pub send_buffer_size: usize,
+    pub receive_buffer_size: usize,
 }
 
 impl QuicConnection {
@@ -27,6 +34,8 @@ impl QuicConnection {
             send_streams: Arc::new(Mutex::new(HashMap::new())),
             recv_streams: Arc::new(Mutex::new(HashMap::new())),
             stream_id_counter: Arc::new(Mutex::new(0)),
+            send_buffer_size: DEFAULT_SEND_BUFFER_SIZE,
+            receive_buffer_size: DEFAULT_RECEIVE_BUFFER_SIZE,
         })
     }
     /// Opens a new bi-directional stream on the connection.
@@ -60,10 +69,9 @@ impl QuicConnection {
         let mut send_streams = self.send_streams.lock().await;
         if let Some(send_stream) = send_streams.get_mut(&stream_id) {
             tracing::info!("Sending data on stream ID: {}", stream_id);
-            let chunk_size = 1024;
             let mut offset = 0;
             while offset < data.len() {
-                let end = std::cmp::min(offset + chunk_size, data.len());
+                let end = std::cmp::min(offset + self.send_buffer_size, data.len());
                 send_stream.write_chunk(bytes::Bytes::copy_from_slice(&data[offset..end])).await?;
                 offset = end;
             }
@@ -81,9 +89,8 @@ impl QuicConnection {
         if let Some(recv_stream) = recv_streams.get_mut(&stream_id) {
             tracing::info!("Receiving data on stream ID: {}", stream_id);
             let mut buffer = Vec::new();
-            let chunk_size = 1024;
             loop {
-                match recv_stream.read_chunk(chunk_size, true).await {
+                match recv_stream.read_chunk(self.receive_buffer_size, true).await {
                     Ok(Some(chunk)) => {
                         buffer.extend_from_slice(&chunk.bytes);
                     },
